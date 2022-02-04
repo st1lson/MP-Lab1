@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace Multi_Paradigm_Programming
@@ -8,14 +7,58 @@ namespace Multi_Paradigm_Programming
     internal class Program
     {
         private static readonly string[] BannedWords = { "the", "in", "a", "an", "for", "of", "at", "by" };
-        private static readonly string[] Separators = { " ", "\r", "\n", "\t" };
+        private static readonly char[] Separators = { ' ', '\r', '\n', '\t' };
 
         private static void Main()
         {
-            string[] data;
+            string[] data = new string[10];
             using (StreamReader reader = new("source.txt"))
             {
-                data = reader.ReadToEnd().Split(Separators, StringSplitOptions.RemoveEmptyEntries);
+                string str = string.Empty;
+                int dataIndex = 0;
+                forReadStatement:
+                    char dataChar = (char)reader.Read();
+                    int checkIndex = 0;
+                    forCheckStatement:
+                        if (dataChar == Separators[checkIndex])
+                        {
+                            data[dataIndex++] = str;
+                            str = default;
+                            goto forReadStatement;
+                        }
+
+                        checkIndex++;
+                        if (checkIndex < Separators.Length)
+                        {
+                            goto forCheckStatement;
+                        }
+
+                    str += dataChar;
+                    if (reader.EndOfStream)
+                    {
+                        data[dataIndex++] = str;
+                    }
+
+                    if (data.Length * 0.8 <= dataIndex)
+                    {
+                        string[] newArray = new string[data.Length * 2];
+                        int copyIndex = 0;
+                        forCopyDataStatement:
+                            newArray[copyIndex] = data[copyIndex];
+                            copyIndex++;
+
+                            if (copyIndex < dataIndex)
+                            {
+                                goto forCopyDataStatement;
+                            }
+
+                        data = newArray;
+                    }
+
+                    if (!reader.EndOfStream)
+                    {
+                        goto forReadStatement;
+                    }
             }
 
             (string, int)[] distinctWords = new (string, int)[1];
@@ -25,7 +68,13 @@ namespace Multi_Paradigm_Programming
                 string word = data[index];
                 if (word is null)
                 {
-                    throw new ArgumentNullException();
+                    index++;
+                    if (index == data.Length - 1)
+                    {
+                        goto forStatementEnd;
+                    }
+
+                    goto forStatement;
                 }
 
                 if (distinctWords.Length * 0.8 <= elementsCount)
@@ -68,35 +117,78 @@ namespace Multi_Paradigm_Programming
 
                 string lowerCaseWord = lowerCaseWordBuilder.ToString();
 
-                if (!BannedWords.Contains(lowerCaseWord))
-                {
-                    int findIndex = 0;
-                    forFindElementStatement:
-                        if (distinctWords[findIndex].Item1 == lowerCaseWord)
-                        {
-                            distinctWords[findIndex].Item2++;
-                        }
+                int banWordIndex = 0;
+                forBanWordCheckStatement:
+                    if (lowerCaseWord == BannedWords[banWordIndex])
+                    {
+                        index++;
+                        goto forStatement;
+                    }
 
-                        findIndex++;
-                        if (findIndex < elementsCount)
-                        {
-                            goto forFindElementStatement;
-                        }
+                    banWordIndex++;
+                    if (banWordIndex < BannedWords.Length)
+                    {
+                        goto forBanWordCheckStatement;
+                    }
 
-                        distinctWords[elementsCount++] = (lowerCaseWord, 1);
-                }
+                int findIndex = 0;
+                forFindElementStatement:
+                    if (distinctWords[findIndex].Item1 == lowerCaseWord)
+                    {
+                        distinctWords[findIndex].Item2++;
+                        goto forFindElementStatementEnd;
+                    }
 
-                index++;
+                    findIndex++;
+                    if (findIndex < elementsCount)
+                    {
+                        goto forFindElementStatement;
+                    }
+
+                    distinctWords[elementsCount++] = (lowerCaseWord, 1);
+
+                forFindElementStatementEnd:
+                    index++;
 
                 if (index < data.Length)
                 {
                     goto forStatement;
                 }
 
-            for (int i = 0; i < elementsCount; i++)
-            {
-                Console.WriteLine($"{distinctWords[i].Item1} - {distinctWords[i].Item2}");
-            }
+            forStatementEnd:
+            int i = 0;
+            forSortStatement:
+                int j = 0;
+                forSortSecondStatement:
+                    if (distinctWords[j].Item2 < distinctWords[j + 1].Item2)
+                    {
+                        (distinctWords[j], distinctWords[j + 1]) = (distinctWords[j + 1], distinctWords[j]);
+                    }
+
+                    j++;
+                    if (j < distinctWords.Length - 1)
+                    {
+                        goto forSortSecondStatement;
+                    }
+
+                i++;
+                if (i < distinctWords.Length)
+                {
+                    goto forSortStatement;
+                }
+
+            int elementIndex = 0;
+            forOutputStatement:
+                if (distinctWords[elementIndex].Item2 != 0)
+                {
+                    Console.WriteLine($"{distinctWords[elementIndex].Item1} - {distinctWords[elementIndex].Item2}");
+                }
+
+                elementIndex++;
+                if (elementIndex < distinctWords.Length)
+                {
+                    goto forOutputStatement;
+                }
         }
     }
 }
