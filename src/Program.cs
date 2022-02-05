@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 namespace Multi_Paradigm_Programming
@@ -7,12 +6,12 @@ namespace Multi_Paradigm_Programming
     internal class Program
     {
         private static readonly string[] BannedWords = { "the", "in", "a", "an", "for", "of", "at", "by" };
-        private static readonly char[] Separators = { ' ', '\r', '\n', '\t' };
+        private static readonly char[] Separators = { ' ', '.', ',', '!', '?', '\r', '\n', '\t' };
 
         private static void Main()
         {
             string[] data = new string[10];
-            using (StreamReader reader = new("source.txt"))
+            using (StreamReader reader = new("input.txt"))
             {
                 string str = string.Empty;
                 int dataIndex = 0;
@@ -178,10 +177,11 @@ namespace Multi_Paradigm_Programming
                 }
 
             int elementIndex = 0;
+            using StreamWriter writer = new("output.txt");
             forOutputStatement:
                 if (distinctWords[elementIndex].Item2 != 0)
                 {
-                    Console.WriteLine($"{distinctWords[elementIndex].Item1} - {distinctWords[elementIndex].Item2}");
+                    writer.WriteLine($"{distinctWords[elementIndex].Item1} - {distinctWords[elementIndex].Item2}");
                 }
 
                 elementIndex++;
