@@ -1,44 +1,37 @@
 ﻿using System.IO;
-using System.Text;
 
 namespace Multi_Paradigm_Programming
 {
     internal class Program
     {
         private static readonly string[] BannedWords = { "the", "in", "a", "an", "for", "of", "at", "by" };
-        private static readonly char[] Separators = { ' ', '.', ',', '!', '?', '\r', '\n', '\t' };
 
         private static void Main()
         {
             string[] data = new string[10];
+            int elementsCount = 0;
             using (StreamReader reader = new("input.txt"))
             {
-                string str = string.Empty;
-                int dataIndex = 0;
+                string str = default;
             forReadStatement:
                 char dataChar = (char)reader.Read();
-                int checkIndex = 0;
-            forCheckStatement:
-                if (dataChar == Separators[checkIndex])
+                if (dataChar is >= 'A' and <= 'Z')
                 {
-                    data[dataIndex++] = str;
-                    str = default;
-                    goto forReadStatement;
+                    dataChar = (char)(dataChar + 32);
+                    goto addChar;
                 }
 
-                checkIndex++;
-                if (checkIndex < Separators.Length)
+                if (dataChar is >= 'a' and <= 'z')
                 {
-                    goto forCheckStatement;
+                    goto addChar;
                 }
 
-                str += dataChar;
-                if (reader.EndOfStream)
+                if (str is null || str.Length == 0)
                 {
-                    data[dataIndex++] = str;
+                    goto addCharEnd;
                 }
 
-                if (data.Length * 0.8 <= dataIndex)
+                if (data.Length * 0.8 <= elementsCount)
                 {
                     string[] newArray = new string[data.Length * 2];
                     int copyIndex = 0;
@@ -46,13 +39,22 @@ namespace Multi_Paradigm_Programming
                     newArray[copyIndex] = data[copyIndex];
                     copyIndex++;
 
-                    if (copyIndex < dataIndex)
+                    if (copyIndex < elementsCount)
                     {
                         goto forCopyDataStatement;
                     }
 
                     data = newArray;
                 }
+
+                data[elementsCount++] = str;
+                str = default;
+                goto addCharEnd;
+
+            addChar:
+                str += dataChar;
+
+            addCharEnd:
 
                 if (!reader.EndOfStream)
                 {
@@ -62,7 +64,7 @@ namespace Multi_Paradigm_Programming
 
             (string, int)[] distinctWords = new (string, int)[1];
             int index = 0;
-            int elementsCount = 0;
+            int uniqueElements = 0;
         forStatement:
             string word = data[index];
             if (word is null)
@@ -76,7 +78,7 @@ namespace Multi_Paradigm_Programming
                 goto forStatement;
             }
 
-            if (distinctWords.Length * 0.8 <= elementsCount)
+            if (distinctWords.Length * 0.8 <= uniqueElements)
             {
                 (string, int)[] newArray = new (string, int)[distinctWords.Length * 2];
                 int copyIndex = 0;
@@ -84,7 +86,7 @@ namespace Multi_Paradigm_Programming
                 newArray[copyIndex] = distinctWords[copyIndex];
                 copyIndex++;
 
-                if (copyIndex < elementsCount)
+                if (copyIndex < uniqueElements)
                 {
                     goto forCopyStatement;
                 }
@@ -92,33 +94,9 @@ namespace Multi_Paradigm_Programming
                 distinctWords = newArray;
             }
 
-            int charIndex = 0;
-            StringBuilder lowerCaseWordBuilder = new()
-            {
-                Length = word.Length
-            };
-        forWordStatement:
-            if (word[charIndex] >= 'A' && word[charIndex] <= 'Z')
-            {
-                lowerCaseWordBuilder[charIndex] = (char)(word[charIndex] + 32);
-            }
-            else
-            {
-                lowerCaseWordBuilder[charIndex] = word[charIndex];
-            }
-
-            charIndex++;
-
-            if (charIndex < word.Length)
-            {
-                goto forWordStatement;
-            }
-
-            string lowerCaseWord = lowerCaseWordBuilder.ToString();
-
             int banWordIndex = 0;
         forBanWordCheckStatement:
-            if (lowerCaseWord == BannedWords[banWordIndex])
+            if (word == BannedWords[banWordIndex])
             {
                 index++;
                 goto forStatement;
@@ -132,19 +110,19 @@ namespace Multi_Paradigm_Programming
 
             int findIndex = 0;
         forFindElementStatement:
-            if (distinctWords[findIndex].Item1 == lowerCaseWord)
+            if (distinctWords[findIndex].Item1 == word)
             {
                 distinctWords[findIndex].Item2++;
                 goto forFindElementStatementEnd;
             }
 
             findIndex++;
-            if (findIndex < elementsCount)
+            if (findIndex < uniqueElements)
             {
                 goto forFindElementStatement;
             }
 
-            distinctWords[elementsCount++] = (lowerCaseWord, 1);
+            distinctWords[uniqueElements++] = (word, 1);
 
         forFindElementStatementEnd:
             index++;
