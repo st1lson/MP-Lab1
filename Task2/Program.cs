@@ -41,6 +41,7 @@ namespace Task2
         checkWords:
             if (words[wordsCheckIndex].Item1 == str)
             {
+                words[wordsCheckIndex].Item3++;
                 int count = words[wordsCheckIndex].Item3;
                 if (count > 100)
                 {
@@ -49,7 +50,6 @@ namespace Task2
                 }
 
                 words[wordsCheckIndex].Item2[count - 1] = lineIndex / 45 + 1;
-                words[wordsCheckIndex].Item3++;
                 goto checkWordsEnd;
             }
 
@@ -184,12 +184,17 @@ namespace Task2
             forOutputPagesStatement:
                 if (words[outputWordIndex].Item2[pageIndex] != 0)
                 {
-                    writer.Write($"{words[outputWordIndex].Item2[pageIndex]}, ");
+                    writer.Write($"{words[outputWordIndex].Item2[pageIndex]}");
                 }
 
                 pageIndex++;
                 if (pageIndex < words[outputWordIndex].Item2.Length)
                 {
+                    if (words[outputWordIndex].Item2[pageIndex] != 0)
+                    {
+                        writer.Write(", ");
+                    }
+
                     goto forOutputPagesStatement;
                 }
 
