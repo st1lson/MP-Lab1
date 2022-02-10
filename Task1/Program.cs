@@ -5,6 +5,7 @@ namespace Multi_Paradigm_Programming
     internal class Program
     {
         private static readonly string[] BannedWords = { "the", "in", "a", "an", "for", "of", "at", "by" };
+        private const int N = 25;
 
         private static void Main()
         {
@@ -163,7 +164,7 @@ namespace Multi_Paradigm_Programming
             }
 
             elementIndex++;
-            if (elementIndex < distinctWords.Length)
+            if (elementIndex < distinctWords.Length && elementIndex < N)
             {
                 goto forOutputStatement;
             }
